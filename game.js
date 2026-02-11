@@ -1099,6 +1099,13 @@ function startGame() {
   narrativeOverlay = null
   gameActive = true
 
+  // Initialize map state so render() can run safely before generateFloor()
+  map = []
+  for (let y = 0; y < ROWS; y++) map[y] = new Array(COLS).fill(WALL)
+  revealed = []
+  for (let y = 0; y < ROWS; y++) revealed[y] = new Array(COLS).fill(false)
+  visible = new Set()
+
   narrative.variables = { arcane_power: 0, allies_freed: 0, cursed: false, boss_defeated: false }
   narrative.currentNode = 'castle-gate'
 
