@@ -121,6 +121,18 @@ const FLOOR_NARRATIVES = {
       'Być może ktoś inny pokona Arcymaga...',
     ]
   },
+  'peaceful-victory': {
+    title: 'Moc Arkana',
+    lines: [
+      'Arcymag pada na kolana.',
+      '«Twoja moc... przewyższa moją.»',
+      '',
+      'Mroczna energia opuszcza zamek',
+      'bez jednej kropli krwi.',
+      '',
+      'Prawdziwa moc nie wymaga przemocy.',
+    ]
+  },
 }
 
 // ===== ENEMY DEFINITIONS =====
@@ -156,6 +168,26 @@ const ARMORS = [
 ]
 const SPELL_DEFS = ['Fireball', 'Ice Shield', 'Lightning', 'Teleport']
 
+// ===== AMBIENT MESSAGES (per floor) =====
+const AMBIENT_MESSAGES = [
+  [],
+  ['Szczury chroboczą w murach...', 'Zimny podmuch przenika korytarz...', 'Gdzieś w mroku coś się poruszyło...', 'Kapie woda z sufitu...', 'Cienie tańczą na ścianach...'],
+  ['Księga spada z półki sama...', 'Szept zaklęcia niesie się echem...', 'Pył wiruje w świetle pochodni...', 'Strony przewracają się same...', 'Atrament na stole jest jeszcze mokry...'],
+  ['Metal szczęka w ciemności...', 'Zbroja obraca głowę w twoją stronę...', 'Podłoga drży od kroków...', 'Ostrze miecza lśni mimo kurzu...', 'Echo kroków niesie się daleko...'],
+  ['Runy na ścianach jarżą się...', 'Moc arkana wibruje w powietrzu...', 'Czujesz oddech wieży...', 'Magiczne pioruny trzaskają w oddali...', 'Powietrze pachnie ozonem...'],
+  ['Arcymag czuje twoją obecność...', 'Mroczna energia gęstnieje...', 'To ostatnia szansa na odwrót...', 'Podłoga drży od mrocznej mocy...', 'Słyszysz szept: "Nie uciekniesz..."'],
+]
+
+// ===== ENEMY LORE =====
+const ENEMY_LORE = {
+  'Giant Rat': { text: 'Olbrzymi szczur — mutant z zamkowych piwnic', color: '#a86' },
+  'Phantom': { text: 'Duch dawnego strażnika, uwięziony między światami', color: '#66a' },
+  'Dark Mage': { text: 'Mroczny mag — niegdyś uczeń Arcymaga', color: '#a4c' },
+  'Enchanted Armor': { text: 'Zaklęta zbroja — pusty pancerz ożywiony magią', color: '#999' },
+  'Arcane Golem': { text: 'Golem arkany — strażnik wykuty z czystej magii', color: '#c64' },
+  'The Archmage': { text: 'Arcymag — władca zamku, źródło całego zła', color: '#fd4' },
+}
+
 // ===== GAME STATE =====
 let floor, map, revealed, visible, player, enemies, items, messages
 let gameActive, stats, effects, pendingChoice, narrativeOverlay
@@ -173,10 +205,14 @@ const narrative = {
       { id: 'floor-2', label: 'Starożytna Biblioteka', type: 'scene' },
       { id: 'imprisoned-wizard', label: 'Uwięziony Mag', type: 'choice' },
       { id: 'floor-3', label: 'Zbrojownia', type: 'scene' },
+      { id: 'ghost-knight', label: 'Duch Rycerza', type: 'choice' },
       { id: 'floor-4', label: 'Wieża Magów', type: 'scene' },
+      { id: 'magic-mirror', label: 'Magiczne Lustro', type: 'choice' },
       { id: 'arcane-check', label: 'Moc Arkana ≥ 3?', type: 'condition' },
+      { id: 'archmage-dialog', label: 'Dialog z Arcymagiem', type: 'condition' },
       { id: 'floor-5', label: 'Komnata Arcymaga', type: 'scene' },
       { id: 'victory', label: 'Zwycięstwo!', type: 'scene' },
+      { id: 'peaceful-victory', label: 'Pokojowe zwycięstwo', type: 'scene' },
       { id: 'death', label: 'Śmierć', type: 'scene' },
     ],
     edges: [
@@ -185,10 +221,14 @@ const narrative = {
       { from: 'cursed-artifact', to: 'floor-2', label: 'Dalej' },
       { from: 'floor-2', to: 'imprisoned-wizard' },
       { from: 'imprisoned-wizard', to: 'floor-3', label: 'Dalej' },
-      { from: 'floor-3', to: 'floor-4' },
-      { from: 'floor-4', to: 'arcane-check' },
-      { from: 'arcane-check', to: 'floor-5', label: 'Tak' },
-      { from: 'floor-5', to: 'victory', label: 'Pokonaj bossa' },
+      { from: 'floor-3', to: 'ghost-knight' },
+      { from: 'ghost-knight', to: 'floor-4', label: 'Dalej' },
+      { from: 'floor-4', to: 'magic-mirror' },
+      { from: 'magic-mirror', to: 'arcane-check', label: 'Dalej' },
+      { from: 'arcane-check', to: 'floor-5' },
+      { from: 'floor-5', to: 'archmage-dialog' },
+      { from: 'archmage-dialog', to: 'victory', label: 'Walcz' },
+      { from: 'archmage-dialog', to: 'peaceful-victory', label: 'Dyplomacja' },
     ]
   },
   _pushEvent(text) {
@@ -331,7 +371,7 @@ function showNarrative(data, callback) {
 
 // ===== COMBAT =====
 function doAttack(attacker, defender, isPlayer) {
-  const atkTotal = attacker.atk + (attacker.weapon ? attacker.weapon.atk : 0)
+  const atkTotal = attacker.atk + (attacker.weapon ? attacker.weapon.atk : 0) + (isPlayer ? player.atkBuff : 0)
   const defTotal = defender.def + (defender.armor ? defender.armor.def : 0)
   const dmg = Math.max(1, atkTotal - defTotal + rand(-1, 2))
   defender.hp -= dmg
@@ -521,16 +561,143 @@ function triggerEncounter(item) {
       }
     }
     render()
+  } else if (item.encounter === 'ghost-knight') {
+    msg('Duch rycerza błąka się w zbrojowni.', '#8af')
+    msg('Jego oczy błyszczą honorem dawnych czasów.', '#6af')
+    msg('[Y] Pomóż mu odejść  [N] Zaatakuj ducha', '#fd4')
+    pendingChoice = {
+      onYes() {
+        narrative.variables.allies_freed++
+        narrative.setVar('allies_freed', narrative.variables.allies_freed, 'Pomógł duchowi rycerza odejść w pokoju')
+        narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 1),
+          'Duch rycerza obdarzył mocą')
+        narrative.transition('ghost-knight', 'Uwolnił ducha rycerza')
+        player.shieldTurns = Math.max(player.shieldTurns, 8)
+        player.shieldDef = 2
+        msg('Duch uśmiecha się i znika. Czujesz jego ochronę. (+2 DEF)', '#8af')
+      },
+      onNo() {
+        narrative.transition('ghost-knight', 'Zaatakował ducha rycerza')
+        // Spawn hostile phantom
+        enemies.push({
+          x: player.x + (player.x < COLS / 2 ? 2 : -2),
+          y: player.y,
+          hp: 20, maxHp: 20, atk: 5, def: 2,
+          name: 'Phantom', char: 'P', color: '#66a', xp: 12,
+        })
+        msg('Duch ryczy z gniewu i atakuje!', '#f44')
+      }
+    }
+    render()
+  } else if (item.encounter === 'magic-mirror') {
+    msg('Lustro na ścianie ukazuje... ciebie.', '#fa4')
+    msg('Ale potężniejszego. Mocniejszego.', '#da4')
+    msg('[Y] Wejrzyj głębiej (+3 Arkana, -5 HP)  [N] Rozbij (+20 złota)', '#fd4')
+    pendingChoice = {
+      onYes() {
+        narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 3),
+          'Wejrzał w Magiczne Lustro — moc za cenę bólu')
+        narrative.transition('magic-mirror', 'Wejrzał w lustro')
+        player.hp -= 5
+        addEffect(player.x, player.y, '#fa4')
+        msg('Moc przepływa przez ciebie, ale ciało słabnie. (-5 HP, +3 Arkana)', '#fa4')
+      },
+      onNo() {
+        narrative.transition('magic-mirror', 'Rozbił lustro')
+        player.gold += 20
+        stats.gold += 20
+        msg('Lustro pęka! Odłamki skrywały złoto. (+20 złota)', C.gold)
+      }
+    }
+    render()
+  } else if (item.encounter === 'archmage-dialog') {
+    if (narrative.variables.arcane_power >= 7) {
+      msg('Arcymag odwraca się. «Kolejny śmiałek...»', '#fd4')
+      msg('Ale czuje twoją moc i waha się.', '#da4')
+      msg('[Y] "Poddaj się. Moja moc przewyższa twoją."  [N] "Do walki!"', '#fd4')
+      pendingChoice = {
+        onYes() {
+          narrative.setVar('boss_defeated', true, 'Arcymag poddał się — dyplomatyczne zwycięstwo')
+          narrative.transition('peaceful-victory', 'Arcymag poddał się potędze arkany')
+          gameActive = false
+          enemies = enemies.filter(e => e.name !== 'The Archmage')
+          msg('Arcymag klęka. «Twoja moc... jest większa.»', '#fd4')
+          showNarrative(FLOOR_NARRATIVES['peaceful-victory'])
+          render()
+          setTimeout(gameOver, 3000)
+        },
+        onNo() {
+          narrative.transition('archmage-dialog', 'Wybrał walkę z Arcymagiem')
+          player.atkBuff = 2
+          player.atkBuffTurns = 10
+          msg('«Więc walczmy!» Gniew dodaje ci siły. (+2 ATK)', '#fa4')
+        }
+      }
+    } else {
+      msg('Arcymag odwraca się. «Kolejny śmiałek...»', '#fd4')
+      msg('Jego moc przytłacza cię.', '#f44')
+      msg('[Y] "Do walki!" (+2 ATK tymczasowo)  [N] Cofnij się', '#fd4')
+      pendingChoice = {
+        onYes() {
+          narrative.transition('archmage-dialog', 'Rzucił wyzwanie Arcymagowi')
+          player.atkBuff = 2
+          player.atkBuffTurns = 10
+          msg('Odwaga daje ci siłę! (+2 ATK na 10 tur)', '#fa4')
+        },
+        onNo() {
+          narrative.transition('archmage-dialog', 'Cofnął się przed Arcymagiem')
+          msg('Cofasz się. Arcymag śmieje się cicho...', '#888')
+        }
+      }
+    }
+    render()
   }
 }
 
 // ===== ENEMY AI =====
 function enemyTurns() {
+  // Turn counter & ambient
+  player.turnCount++
+  if (player.turnCount % (12 + rand(0, 6)) === 0) {
+    const pool = AMBIENT_MESSAGES[Math.min(floor, MAX_FLOOR)]
+    if (pool.length > 0) {
+      msg(pool[rand(0, pool.length - 1)], '#4a4668')
+    }
+  }
+
+  // Enemy lore (first sight)
+  enemies.forEach(e => {
+    if (e.hp > 0 && visible.has(e.x + ',' + e.y) && !stats.seenEnemies.has(e.name)) {
+      stats.seenEnemies.add(e.name)
+      const lore = ENEMY_LORE[e.name]
+      if (lore) msg(lore.text, lore.color)
+    }
+  })
+
   // Shield countdown
   if (player.shieldTurns > 0) {
     player.shieldTurns--
     if (player.shieldTurns === 0) {
       msg('Ice Shield fades.', '#4af')
+    }
+  }
+
+  // Curse tick
+  if (narrative.variables.cursed) {
+    player.curseTick++
+    if (player.curseTick % 10 === 0) {
+      player.hp -= 1
+      msg('Klątwa pulsuje... -1 HP', '#a4f')
+      addEffect(player.x, player.y, '#a4f')
+    }
+  }
+
+  // ATK buff countdown
+  if (player.atkBuffTurns > 0) {
+    player.atkBuffTurns--
+    if (player.atkBuffTurns === 0) {
+      player.atkBuff = 0
+      msg('Bojowy zapał opada.', '#fa4')
     }
   }
 
@@ -578,6 +745,8 @@ function generateFloor() {
       spells: ['Heal'],
       gold: 0, xp: 0,
       shieldTurns: 0, shieldDef: 3,
+      turnCount: 0, curseTick: 0,
+      atkBuff: 0, atkBuffTurns: 0,
     }
   } else {
     player.x = start.cx; player.y = start.cy
@@ -598,6 +767,34 @@ function generateFloor() {
       })
     }
   })
+
+  // Floor 5: Arcane check + allies payoff
+  if (floor === 5) {
+    narrative.transition('arcane-check',
+      narrative.variables.arcane_power >= 3
+        ? 'Moc Arkana wystarczająca — przejście otwarte'
+        : 'Brak mocy Arkana — Arcymag silniejszy')
+    const boss = enemies.find(e => e.name === 'The Archmage')
+    if (boss) {
+      // Allies weaken boss
+      if (narrative.variables.allies_freed > 0) {
+        const reduction = 8 * narrative.variables.allies_freed
+        boss.hp -= reduction
+        boss.maxHp -= reduction
+        msg(`Uwolnieni magowie osłabiają Arcymaga! (-${reduction} HP)`, '#4af')
+        narrative._pushEvent(`Sojusznicy osłabili Arcymaga (-${reduction} HP)`)
+      }
+      // Arcane power check
+      if (narrative.variables.arcane_power < 3) {
+        boss.hp += 10
+        boss.maxHp += 10
+        boss.atk += 2
+        msg('Brak mocy arkana... Arcymag jest silniejszy!', '#f44')
+      } else {
+        msg('Moc arkana chroni cię przed aurą Arcymaga.', '#8af')
+      }
+    }
+  }
 
   // Spawn items
   items = []
@@ -639,6 +836,18 @@ function generateFloor() {
   if (floor === 2) {
     const p = randomFloorTile()
     items.push({ x: p.x, y: p.y, type: 'encounter', encounter: 'imprisoned-wizard', name: 'Imprisoned Wizard', char: '?', color: '#4af' })
+  }
+  if (floor === 3) {
+    const p = randomFloorTile()
+    items.push({ x: p.x, y: p.y, type: 'encounter', encounter: 'ghost-knight', name: 'Duch Rycerza', char: '†', color: '#8af' })
+  }
+  if (floor === 4) {
+    const p = randomFloorTile()
+    items.push({ x: p.x, y: p.y, type: 'encounter', encounter: 'magic-mirror', name: 'Magiczne Lustro', char: '◊', color: '#fa4' })
+  }
+  if (floor === 5) {
+    const p = randomFloorTile()
+    items.push({ x: p.x, y: p.y, type: 'encounter', encounter: 'archmage-dialog', name: 'Arcymag', char: '✧', color: '#fd4' })
   }
 
   // Narrative
@@ -968,6 +1177,13 @@ function render() {
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('@', sx + T / 2, sy + T / 2)
+    if (narrative.variables.cursed) {
+      ctx.strokeStyle = '#a4f'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.arc(sx + T / 2, sy + T / 2, T / 2 + 4, 0, Math.PI * 2)
+      ctx.stroke()
+    }
     if (player.shieldTurns > 0) {
       ctx.strokeStyle = '#4af'
       ctx.lineWidth = 2
@@ -1254,7 +1470,7 @@ function startGame() {
   enemies = []
   items = []
   messages = []
-  stats = { kills: 0, gold: 0, itemsFound: 0 }
+  stats = { kills: 0, gold: 0, itemsFound: 0, seenEnemies: new Set() }
   effects = []
   pendingChoice = null
   narrativeOverlay = null
