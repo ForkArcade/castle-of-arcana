@@ -31,6 +31,96 @@ const C = {
 // ===== FLOOR NAMES =====
 const FLOOR_NAMES = ['', 'Zamkowe Piwnice', 'Starożytna Biblioteka', 'Zbrojownia', 'Wieża Magów', 'Komnata Arcymaga']
 
+// ===== NARRATIVE TEXTS =====
+const FLOOR_NARRATIVES = {
+  intro: {
+    title: 'Zamek Arkana',
+    lines: [
+      'Opuszczony zamek wznosi się przed tobą,',
+      'owiany ciemnością i tajemnicą.',
+      '',
+      'Mówią, że mroczny Arcymag',
+      'przejął w nim władzę...',
+      '',
+      'Czas uwolnić zamek od jego klątwy.',
+    ]
+  },
+  1: {
+    title: 'Zamkowe Piwnice',
+    lines: [
+      'Ciężkie wrota zamku skrzypią za tobą.',
+      'Wilgotne piwnice rozciągają się w mroku.',
+      '',
+      'Szczury uciekają w cienie, a duchy dawnych',
+      'strażników snują się w korytarzach.',
+    ]
+  },
+  2: {
+    title: 'Starożytna Biblioteka',
+    lines: [
+      'Schody wiodą do ogromnej komnaty pełnej',
+      'zakurzonych regałów.',
+      '',
+      'Księgi szepczą starożytne zaklęcia,',
+      'a mroczni magowie pilnują zakazanej wiedzy.',
+    ]
+  },
+  3: {
+    title: 'Zbrojownia',
+    lines: [
+      'Zbroje w niszach poruszają się same,',
+      'ożywione mroczną magią.',
+      '',
+      'Wśród szczęku metalu',
+      'czai się niebezpieczeństwo.',
+    ]
+  },
+  4: {
+    title: 'Wieża Magów',
+    lines: [
+      'Spiralne schody wiodą do wieży,',
+      'gdzie moc arkana jest wszechobecna.',
+      '',
+      'Golemy z kamienia i magowie strzegą',
+      'drogi do komnaty Arcymaga.',
+    ]
+  },
+  5: {
+    title: 'Komnata Arcymaga',
+    lines: [
+      'Potężna aura mrocznej magii',
+      'wypełnia powietrze.',
+      '',
+      'Tu czeka ostateczna konfrontacja',
+      'z Arcymagiem — władcą zamku.',
+      '',
+      'Przygotuj się na walkę!',
+    ]
+  },
+  victory: {
+    title: 'Zwycięstwo!',
+    lines: [
+      'Arcymag pada, a mroczna energia',
+      'rozprasza się jak mgła o świcie.',
+      '',
+      'Zamek budzi się ze snu — światło',
+      'przenika przez witraże po raz pierwszy',
+      'od wieków.',
+      '',
+      'Jesteś bohaterem Arkany!',
+    ]
+  },
+  death: {
+    title: 'Śmierć...',
+    lines: [
+      'Ciemność otula cię...',
+      '',
+      'Zamek pochłania kolejną duszę.',
+      'Być może ktoś inny pokona Arcymaga...',
+    ]
+  },
+}
+
 // ===== ENEMY DEFINITIONS =====
 const ENEMY_DEFS = {
   rat:      { name: 'Giant Rat',        char: 'r', color: '#a86', hp: 6,  atk: 2, def: 0, xp: 3 },
@@ -66,7 +156,7 @@ const SPELL_DEFS = ['Fireball', 'Ice Shield', 'Lightning', 'Teleport']
 
 // ===== GAME STATE =====
 let floor, map, revealed, visible, player, enemies, items, messages
-let gameActive, stats, effects, pendingChoice
+let gameActive, stats, effects, pendingChoice, narrativeOverlay
 
 // ===== NARRATIVE =====
 const narrative = {
@@ -224,6 +314,11 @@ function addEffect(x, y, color) {
   effects.push({ x, y, color, life: 5 })
 }
 
+// ===== NARRATIVE OVERLAY =====
+function showNarrative(data, callback) {
+  narrativeOverlay = { title: data.title, lines: data.lines, callback: callback || null }
+}
+
 // ===== COMBAT =====
 function doAttack(attacker, defender, isPlayer) {
   const atkTotal = attacker.atk + (attacker.weapon ? attacker.weapon.atk : 0)
@@ -247,7 +342,7 @@ function doAttack(attacker, defender, isPlayer) {
 
 // ===== SPELLS =====
 function castSpell(index) {
-  if (!gameActive || pendingChoice) return
+  if (!gameActive || pendingChoice || narrativeOverlay) return
   if (index >= player.spells.length) return
   const spell = player.spells[index]
 
@@ -373,24 +468,26 @@ function triggerEncounter(item) {
   items = items.filter(i => i !== item)
 
   if (item.encounter === 'cursed-crystal') {
-    msg('A dark crystal pulses with forbidden power...', '#f4f')
-    msg('[Y] Take it (+3 ATK, but cursed)  [N] Leave it', '#fd4')
+    msg('Mroczny kryształ pulsuje zakazaną mocą...', '#f4f')
+    msg('Czujesz, jak klątwa przenika powietrze.', '#a4a')
+    msg('[Y] Weź kryształ (+3 ATK, klątwa)  [N] Zostaw', '#fd4')
     pendingChoice = {
       onYes() {
         player.weapon = { name: 'Cursed Crystal Blade', atk: player.weapon.atk + 3 }
         narrative.setVar('cursed', true, 'Wziął Przeklęty Kryształ — moc za cenę klątwy')
         narrative.transition('cursed-artifact', 'Przyjął przeklęty artefakt')
-        msg('The crystal fuses with your weapon! Power surges... and darkness.', '#f4f')
+        msg('Kryształ wtapia się w broń! Moc narasta... i ciemność.', '#f4f')
       },
       onNo() {
         narrative.transition('cursed-artifact', 'Odrzucił przeklęty artefakt')
-        msg('You leave the crystal. Wise, perhaps.', '#888')
+        msg('Zostawiasz kryształ. Mądry wybór... być może.', '#888')
       }
     }
     render()
   } else if (item.encounter === 'imprisoned-wizard') {
-    msg('An old wizard trapped in a magical cage!', '#4af')
-    msg('[Y] Free him (learn spell)  [N] Walk away', '#fd4')
+    msg('Stary mag uwięziony w magicznej klatce!', '#4af')
+    msg('Jego oczy błagają o pomoc.', '#6af')
+    msg('[Y] Uwolnij (naucz się zaklęcia)  [N] Odejdź', '#fd4')
     pendingChoice = {
       onYes() {
         narrative.variables.allies_freed++
@@ -400,17 +497,17 @@ function triggerEncounter(item) {
         if (available.length > 0) {
           const spell = available[rand(0, available.length - 1)]
           player.spells.push(spell)
-          msg(`The wizard teaches you ${spell}! "Use it well..."`, '#4af')
+          msg(`Mag uczy cię ${spell}! "Użyj tego mądrze..."`, '#4af')
           narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 2),
             `Mag nauczył zaklęcia: ${spell}`)
         } else {
           player.maxMp += 5; player.mp += 5
-          msg('The wizard blesses you with +5 max MP!', '#48f')
+          msg('Mag błogosławi cię: +5 max MP!', '#48f')
         }
       },
       onNo() {
         narrative.transition('imprisoned-wizard', 'Zignorował uwięzionego maga')
-        msg('You walk past. The wizard\'s eyes follow you sadly.', '#888')
+        msg('Odchodzisz. Oczy maga śledzą cię ze smutkiem.', '#888')
       }
     }
     render()
@@ -536,15 +633,16 @@ function generateFloor() {
 
   // Narrative
   narrative.transition('floor-' + floor, `Wkroczono na piętro ${floor}: ${FLOOR_NAMES[floor]}`)
-  msg(`--- Floor ${floor}: ${FLOOR_NAMES[floor]} ---`, '#fd4')
+  msg(`— Piętro ${floor}: ${FLOOR_NAMES[floor]} —`, '#fd4')
 
   computeFOV()
+  showNarrative(FLOOR_NARRATIVES[floor])
   render()
 }
 
 // ===== PLAYER ACTION =====
 function playerAction(dx, dy) {
-  if (!gameActive || pendingChoice) return
+  if (!gameActive || pendingChoice || narrativeOverlay) return
 
   const nx = player.x + dx, ny = player.y + dy
   if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) return
@@ -556,12 +654,13 @@ function playerAction(dx, dy) {
     if (enemy.hp <= 0 && enemy.name === 'The Archmage') {
       narrative.setVar('boss_defeated', true, 'Arcymag pokonany!')
       narrative.transition('victory', 'Zwycięstwo! Zamek wolny od mrocznej magii!')
-      msg('THE ARCHMAGE IS DEFEATED! YOU WIN!', '#fd4')
+      msg('ARCYMAG POKONANY!', '#fd4')
       gameActive = false
       enemies = enemies.filter(e => e.hp > 0)
       computeFOV()
+      showNarrative(FLOOR_NARRATIVES.victory)
       render()
-      setTimeout(gameOver, 2000)
+      setTimeout(gameOver, 3000)
       return
     }
   } else {
@@ -579,11 +678,12 @@ function playerAction(dx, dy) {
   enemyTurns()
 
   if (player.hp <= 0) {
-    msg('You have been slain...', '#f44')
+    msg('Zginąłeś...', '#f44')
     narrative.transition('death', `Zginął na piętrze ${floor}: ${FLOOR_NAMES[floor]}`)
     gameActive = false
+    showNarrative(FLOOR_NARRATIVES.death)
     render()
-    setTimeout(gameOver, 2000)
+    setTimeout(gameOver, 3000)
     return
   }
 
@@ -806,36 +906,84 @@ function render() {
     ctx.fillStyle = '#fd4'
     ctx.font = 'bold 12px monospace'
     ctx.textAlign = 'center'
-    ctx.fillText('Press [Y] to accept or [N] to decline', 400, MSG_Y - 8)
+    ctx.fillText('[Y] — przyjmij    [N] — odrzuć', 400, MSG_Y - 8)
   }
 
   // --- GAME OVER / VICTORY OVERLAY ---
-  if (!gameActive && player) {
+  if (!gameActive && player && !narrativeOverlay) {
     ctx.fillStyle = 'rgba(0,0,0,0.7)'
     ctx.fillRect(0, 0, 800, 600)
     if (narrative.variables.boss_defeated) {
       ctx.fillStyle = '#fd4'
       ctx.font = 'bold 36px monospace'
       ctx.textAlign = 'center'
-      ctx.fillText('VICTORY!', 400, 250)
-      ctx.fillStyle = '#ccc'
+      ctx.fillText('ZWYCIĘSTWO!', 400, 240)
+      ctx.fillStyle = '#c8b8e8'
       ctx.font = '16px monospace'
-      ctx.fillText('The castle is free from dark magic.', 400, 295)
+      ctx.fillText('Zamek Arkana wolny od mrocznej magii!', 400, 285)
     } else {
       ctx.fillStyle = '#f44'
       ctx.font = 'bold 36px monospace'
       ctx.textAlign = 'center'
-      ctx.fillText('YOU DIED', 400, 250)
-      ctx.fillStyle = '#ccc'
+      ctx.fillText('ŚMIERĆ', 400, 240)
+      ctx.fillStyle = '#c8b8e8'
       ctx.font = '16px monospace'
-      ctx.fillText(`Fell on floor ${floor}: ${FLOOR_NAMES[floor]}`, 400, 295)
+      ctx.fillText(`Poległ na piętrze ${floor}: ${FLOOR_NAMES[floor]}`, 400, 285)
     }
     ctx.fillStyle = '#aaa'
-    ctx.font = '18px monospace'
-    ctx.fillText(`Score: ${calcScore()}  |  Kills: ${stats.kills}  |  Gold: ${player.gold}`, 400, 335)
+    ctx.font = '16px monospace'
+    ctx.fillText(`Wynik: ${calcScore()}  |  Zabici: ${stats.kills}  |  Złoto: ${player.gold}`, 400, 330)
     ctx.fillStyle = '#666'
-    ctx.font = '14px monospace'
-    ctx.fillText('Press [R] to restart', 400, 375)
+    ctx.font = '13px monospace'
+    ctx.fillText('[R] — zagraj ponownie', 400, 370)
+  }
+
+  // --- NARRATIVE OVERLAY ---
+  if (narrativeOverlay) {
+    ctx.fillStyle = 'rgba(5,3,15,0.92)'
+    ctx.fillRect(0, 0, 800, 600)
+
+    // Border
+    ctx.strokeStyle = '#4a3a7a'
+    ctx.lineWidth = 2
+    ctx.strokeRect(120, 120, 560, 360)
+    ctx.strokeStyle = '#2a1a4a'
+    ctx.lineWidth = 1
+    ctx.strokeRect(124, 124, 552, 352)
+
+    // Title
+    ctx.fillStyle = '#fd4'
+    ctx.font = 'bold 22px monospace'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(narrativeOverlay.title, 400, 168)
+
+    // Decorative line
+    ctx.strokeStyle = '#4a3a7a'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(240, 190)
+    ctx.lineTo(560, 190)
+    ctx.stroke()
+
+    // Lines
+    const nLines = narrativeOverlay.lines
+    const totalH = nLines.length * 26
+    const startY = 210 + Math.max(0, (200 - totalH) / 2)
+    nLines.forEach((line, i) => {
+      if (line === '') return
+      ctx.fillStyle = '#c8b8e8'
+      ctx.font = '15px monospace'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'top'
+      ctx.fillText(line, 400, startY + i * 26)
+    })
+
+    // Prompt
+    ctx.fillStyle = '#555'
+    ctx.font = '11px monospace'
+    ctx.textAlign = 'center'
+    ctx.fillText('[ Naciśnij dowolny klawisz... ]', 400, 450)
   }
 }
 
@@ -852,6 +1000,16 @@ function spellCost(name) {
 
 // ===== INPUT =====
 document.addEventListener('keydown', (e) => {
+  // Narrative overlay dismiss
+  if (narrativeOverlay) {
+    e.preventDefault()
+    const cb = narrativeOverlay.callback
+    narrativeOverlay = null
+    if (cb) cb()
+    else render()
+    return
+  }
+
   if (!player) return
 
   // Restart
@@ -915,11 +1073,12 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault()
     enemyTurns()
     if (player.hp <= 0) {
-      msg('You have been slain...', '#f44')
+      msg('Zginąłeś...', '#f44')
       narrative.transition('death', `Zginął na piętrze ${floor}`)
       gameActive = false
+      showNarrative(FLOOR_NARRATIVES.death)
       render()
-      setTimeout(gameOver, 2000)
+      setTimeout(gameOver, 3000)
       return
     }
     computeFOV()
@@ -937,16 +1096,18 @@ function startGame() {
   stats = { kills: 0, gold: 0, itemsFound: 0 }
   effects = []
   pendingChoice = null
+  narrativeOverlay = null
   gameActive = true
 
   narrative.variables = { arcane_power: 0, allies_freed: 0, cursed: false, boss_defeated: false }
   narrative.currentNode = 'castle-gate'
 
-  msg('Welcome to the Castle of Arcana!', '#fd4')
-  msg('Arrows/WASD: move | Q: potion | E: mana | 1-5: spells', '#888')
-  msg('Bump into enemies to attack. Find the Archmage!', '#888')
+  msg('WASD/Strzałki: ruch | Q: mikstura | E: mana | 1-5: zaklęcia', '#666')
 
-  generateFloor()
+  showNarrative(FLOOR_NARRATIVES.intro, function() {
+    generateFloor()
+  })
+  render()
 }
 
 // ===== SDK =====
