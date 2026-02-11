@@ -15,6 +15,8 @@ const MSG_Y = 558
 const FOV_R = 7
 const MAX_FLOOR = 5
 const WALL = 0, FLOOR = 1, STAIRS = 2
+const PANEL_X = 800
+const PANEL_W = 260
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
 
@@ -162,6 +164,7 @@ let gameActive, stats, effects, pendingChoice, narrativeOverlay
 const narrative = {
   variables: { arcane_power: 0, allies_freed: 0, cursed: false, boss_defeated: false },
   currentNode: 'castle-gate',
+  events: [],
   graph: {
     nodes: [
       { id: 'castle-gate', label: 'Brama Zamku', type: 'scene' },
@@ -188,8 +191,13 @@ const narrative = {
       { from: 'floor-5', to: 'victory', label: 'Pokonaj bossa' },
     ]
   },
+  _pushEvent(text) {
+    this.events.push(text)
+    if (this.events.length > 15) this.events.shift()
+  },
   transition(nodeId, event) {
     this.currentNode = nodeId
+    if (event) this._pushEvent(event)
     ForkArcade.updateNarrative({
       variables: this.variables,
       currentNode: this.currentNode,
@@ -199,11 +207,13 @@ const narrative = {
   },
   setVar(name, value, reason) {
     this.variables[name] = value
+    const evt = reason || (name + ' = ' + value)
+    this._pushEvent(evt)
     ForkArcade.updateNarrative({
       variables: this.variables,
       currentNode: this.currentNode,
       graph: this.graph,
-      event: reason || (name + ' = ' + value)
+      event: evt
     })
   }
 }
@@ -723,10 +733,158 @@ function useManaCrystal() {
   return true
 }
 
+// ===== NARRATIVE PANEL =====
+function renderPanel() {
+  const px = PANEL_X
+  const pw = PANEL_W
+
+  // Background
+  ctx.fillStyle = '#0e0c20'
+  ctx.fillRect(px, 0, pw, 600)
+
+  // Separator line
+  ctx.strokeStyle = '#4a3a7a'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(px, 0)
+  ctx.lineTo(px, 600)
+  ctx.stroke()
+
+  // Header
+  ctx.fillStyle = '#1a1636'
+  ctx.fillRect(px, 0, pw, 36)
+  ctx.fillStyle = '#fd4'
+  ctx.font = 'bold 13px monospace'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('KRONIKA', px + pw / 2, 18)
+
+  // Current location
+  const node = narrative.graph.nodes.find(n => n.id === narrative.currentNode)
+  const locLabel = node ? node.label : narrative.currentNode
+  let cy = 52
+
+  ctx.fillStyle = '#666'
+  ctx.font = '10px monospace'
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'top'
+  ctx.fillText('LOKACJA', px + 14, cy)
+  cy += 16
+  ctx.fillStyle = '#fd4'
+  ctx.font = '13px monospace'
+  ctx.fillText(locLabel, px + 14, cy)
+  cy += 24
+
+  // Separator
+  ctx.strokeStyle = '#2a2248'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(px + 12, cy)
+  ctx.lineTo(px + pw - 12, cy)
+  ctx.stroke()
+  cy += 12
+
+  // Variables section
+  ctx.fillStyle = '#666'
+  ctx.font = '10px monospace'
+  ctx.fillText('ZMIENNE', px + 14, cy)
+  cy += 18
+
+  // Arcane Power bar
+  const ap = narrative.variables.arcane_power
+  ctx.fillStyle = '#a8a'
+  ctx.font = '11px monospace'
+  ctx.fillText('Moc Arkana', px + 14, cy)
+  ctx.fillStyle = '#fff'
+  ctx.textAlign = 'right'
+  ctx.fillText(ap + '/10', px + pw - 14, cy)
+  ctx.textAlign = 'left'
+  cy += 15
+  // Bar background
+  ctx.fillStyle = '#1a1636'
+  ctx.fillRect(px + 14, cy, pw - 28, 8)
+  // Bar fill
+  const barW = (pw - 28) * (ap / 10)
+  if (barW > 0) {
+    const grad = ctx.createLinearGradient(px + 14, 0, px + 14 + barW, 0)
+    grad.addColorStop(0, '#4a3a7a')
+    grad.addColorStop(1, '#8a6aff')
+    ctx.fillStyle = grad
+    ctx.fillRect(px + 14, cy, barW, 8)
+  }
+  cy += 20
+
+  // Allies freed
+  ctx.fillStyle = '#a8a'
+  ctx.font = '11px monospace'
+  ctx.fillText('Uwolnieni', px + 14, cy)
+  ctx.fillStyle = '#fff'
+  ctx.textAlign = 'right'
+  const allies = narrative.variables.allies_freed
+  ctx.fillText(allies + '/3', px + pw - 14, cy)
+  ctx.textAlign = 'left'
+  cy += 18
+
+  // Cursed
+  ctx.fillStyle = '#a8a'
+  ctx.fillText('Klątwa', px + 14, cy)
+  ctx.textAlign = 'right'
+  if (narrative.variables.cursed) {
+    ctx.fillStyle = '#f44'
+    ctx.fillText('Tak', px + pw - 14, cy)
+  } else {
+    ctx.fillStyle = '#4a4'
+    ctx.fillText('Nie', px + pw - 14, cy)
+  }
+  ctx.textAlign = 'left'
+  cy += 18
+
+  // Boss
+  ctx.fillStyle = '#a8a'
+  ctx.fillText('Boss', px + 14, cy)
+  ctx.textAlign = 'right'
+  if (narrative.variables.boss_defeated) {
+    ctx.fillStyle = '#fd4'
+    ctx.fillText('Pokonany!', px + pw - 14, cy)
+  } else {
+    ctx.fillStyle = '#666'
+    ctx.fillText('—', px + pw - 14, cy)
+  }
+  ctx.textAlign = 'left'
+  cy += 24
+
+  // Separator
+  ctx.strokeStyle = '#2a2248'
+  ctx.beginPath()
+  ctx.moveTo(px + 12, cy)
+  ctx.lineTo(px + pw - 12, cy)
+  ctx.stroke()
+  cy += 12
+
+  // Events chronicle
+  ctx.fillStyle = '#666'
+  ctx.font = '10px monospace'
+  ctx.fillText('KRONIKA ZDARZEŃ', px + 14, cy)
+  cy += 16
+
+  const maxEvents = Math.min(narrative.events.length, 10)
+  const startIdx = Math.max(0, narrative.events.length - maxEvents)
+  ctx.font = '10px monospace'
+  for (let i = startIdx; i < narrative.events.length; i++) {
+    const age = narrative.events.length - 1 - i
+    ctx.fillStyle = age === 0 ? '#c8b8e8' : age < 3 ? '#8878a8' : '#4a4668'
+    const text = narrative.events[i]
+    // Truncate long lines
+    const truncated = text.length > 28 ? text.substring(0, 27) + '…' : text
+    ctx.fillText('› ' + truncated, px + 14, cy)
+    cy += 14
+  }
+}
+
 // ===== RENDER =====
 function render() {
   ctx.fillStyle = C.bg
-  ctx.fillRect(0, 0, 800, 600)
+  ctx.fillRect(0, 0, 1060, 600)
 
   // --- MAP ---
   for (let y = 0; y < ROWS; y++) {
@@ -909,10 +1067,13 @@ function render() {
     ctx.fillText('[Y] — przyjmij    [N] — odrzuć', 400, MSG_Y - 8)
   }
 
+  // --- NARRATIVE PANEL (right column) ---
+  renderPanel()
+
   // --- GAME OVER / VICTORY OVERLAY ---
   if (!gameActive && player && !narrativeOverlay) {
     ctx.fillStyle = 'rgba(0,0,0,0.7)'
-    ctx.fillRect(0, 0, 800, 600)
+    ctx.fillRect(0, 0, 1060, 600)
     if (narrative.variables.boss_defeated) {
       ctx.fillStyle = '#fd4'
       ctx.font = 'bold 36px monospace'
@@ -941,7 +1102,7 @@ function render() {
   // --- NARRATIVE OVERLAY ---
   if (narrativeOverlay) {
     ctx.fillStyle = 'rgba(5,3,15,0.92)'
-    ctx.fillRect(0, 0, 800, 600)
+    ctx.fillRect(0, 0, 1060, 600)
 
     // Border
     ctx.strokeStyle = '#4a3a7a'
@@ -1108,6 +1269,7 @@ function startGame() {
 
   narrative.variables = { arcane_power: 0, allies_freed: 0, cursed: false, boss_defeated: false }
   narrative.currentNode = 'castle-gate'
+  narrative.events = []
 
   msg('WASD/Strzałki: ruch | Q: mikstura | E: mana | 1-5: zaklęcia', '#666')
 
