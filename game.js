@@ -518,138 +518,196 @@ function triggerEncounter(item) {
   items = items.filter(i => i !== item)
 
   if (item.encounter === 'cursed-crystal') {
-    msg('Mroczny kryształ pulsuje zakazaną mocą...', '#f4f')
-    msg('Czujesz, jak klątwa przenika powietrze.', '#a4a')
-    msg('[Y] Weź kryształ (+3 ATK, klątwa)  [N] Zostaw', '#fd4')
-    pendingChoice = {
-      onYes() {
-        player.weapon = { name: 'Cursed Crystal Blade', atk: player.weapon.atk + 3 }
-        narrative.setVar('cursed', true, 'Wziął Przeklęty Kryształ — moc za cenę klątwy')
-        narrative.transition('cursed-artifact', 'Przyjął przeklęty artefakt')
-        msg('Kryształ wtapia się w broń! Moc narasta... i ciemność.', '#f4f')
-      },
-      onNo() {
-        narrative.transition('cursed-artifact', 'Odrzucił przeklęty artefakt')
-        msg('Zostawiasz kryształ. Mądry wybór... być może.', '#888')
+    showNarrative({
+      title: 'Przeklęty Kryształ',
+      lines: [
+        'Mroczny kryształ leży pośród ruin.',
+        'Pulsuje zakazaną mocą, kusząc potęgą.',
+        '',
+        'Czujesz, jak klątwa przenika powietrze.',
+        'Ciemna energia sięga ku twojej dłoni...',
+      ]
+    }, function() {
+      msg('[Y] Weź kryształ (+3 ATK, klątwa)  [N] Zostaw', '#fd4')
+      pendingChoice = {
+        onYes() {
+          player.weapon = { name: 'Cursed Crystal Blade', atk: player.weapon.atk + 3 }
+          narrative.setVar('cursed', true, 'Wziął Przeklęty Kryształ — moc za cenę klątwy')
+          narrative.transition('cursed-artifact', 'Przyjął przeklęty artefakt')
+          msg('Kryształ wtapia się w broń! Moc narasta... i ciemność.', '#f4f')
+        },
+        onNo() {
+          narrative.transition('cursed-artifact', 'Odrzucił przeklęty artefakt')
+          msg('Zostawiasz kryształ. Mądry wybór... być może.', '#888')
+        }
       }
-    }
+      render()
+    })
     render()
+
   } else if (item.encounter === 'imprisoned-wizard') {
-    msg('Stary mag uwięziony w magicznej klatce!', '#4af')
-    msg('Jego oczy błagają o pomoc.', '#6af')
-    msg('[Y] Uwolnij (naucz się zaklęcia)  [N] Odejdź', '#fd4')
-    pendingChoice = {
-      onYes() {
-        narrative.variables.allies_freed++
-        narrative.setVar('allies_freed', narrative.variables.allies_freed, 'Uwolniono uwięzionego maga')
-        narrative.transition('imprisoned-wizard', 'Uwolnił maga')
-        const available = SPELL_DEFS.filter(s => !player.spells.includes(s))
-        if (available.length > 0) {
-          const spell = available[rand(0, available.length - 1)]
-          player.spells.push(spell)
-          msg(`Mag uczy cię ${spell}! "Użyj tego mądrze..."`, '#4af')
-          narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 2),
-            `Mag nauczył zaklęcia: ${spell}`)
-        } else {
-          player.maxMp += 5; player.mp += 5
-          msg('Mag błogosławi cię: +5 max MP!', '#48f')
+    showNarrative({
+      title: 'Uwięziony Mag',
+      lines: [
+        'Stary mag uwięziony w magicznej klatce.',
+        'Jego szata podarta, oczy pełne mądrości.',
+        '',
+        '«Proszę... uwolnij mnie.',
+        'Odwdzięczę się wiedzą, której szukasz.»',
+      ]
+    }, function() {
+      msg('[Y] Uwolnij (naucz się zaklęcia)  [N] Odejdź', '#fd4')
+      pendingChoice = {
+        onYes() {
+          narrative.variables.allies_freed++
+          narrative.setVar('allies_freed', narrative.variables.allies_freed, 'Uwolniono uwięzionego maga')
+          narrative.transition('imprisoned-wizard', 'Uwolnił maga')
+          const available = SPELL_DEFS.filter(s => !player.spells.includes(s))
+          if (available.length > 0) {
+            const spell = available[rand(0, available.length - 1)]
+            player.spells.push(spell)
+            msg(`Mag uczy cię ${spell}! "Użyj tego mądrze..."`, '#4af')
+            narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 2),
+              `Mag nauczył zaklęcia: ${spell}`)
+          } else {
+            player.maxMp += 5; player.mp += 5
+            msg('Mag błogosławi cię: +5 max MP!', '#48f')
+          }
+        },
+        onNo() {
+          narrative.transition('imprisoned-wizard', 'Zignorował uwięzionego maga')
+          msg('Odchodzisz. Oczy maga śledzą cię ze smutkiem.', '#888')
         }
-      },
-      onNo() {
-        narrative.transition('imprisoned-wizard', 'Zignorował uwięzionego maga')
-        msg('Odchodzisz. Oczy maga śledzą cię ze smutkiem.', '#888')
       }
-    }
+      render()
+    })
     render()
+
   } else if (item.encounter === 'ghost-knight') {
-    msg('Duch rycerza błąka się w zbrojowni.', '#8af')
-    msg('Jego oczy błyszczą honorem dawnych czasów.', '#6af')
-    msg('[Y] Pomóż mu odejść  [N] Zaatakuj ducha', '#fd4')
-    pendingChoice = {
-      onYes() {
-        narrative.variables.allies_freed++
-        narrative.setVar('allies_freed', narrative.variables.allies_freed, 'Pomógł duchowi rycerza odejść w pokoju')
-        narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 1),
-          'Duch rycerza obdarzył mocą')
-        narrative.transition('ghost-knight', 'Uwolnił ducha rycerza')
-        player.shieldTurns = Math.max(player.shieldTurns, 8)
-        player.shieldDef = 2
-        msg('Duch uśmiecha się i znika. Czujesz jego ochronę. (+2 DEF)', '#8af')
-      },
-      onNo() {
-        narrative.transition('ghost-knight', 'Zaatakował ducha rycerza')
-        // Spawn hostile phantom
-        enemies.push({
-          x: player.x + (player.x < COLS / 2 ? 2 : -2),
-          y: player.y,
-          hp: 20, maxHp: 20, atk: 5, def: 2,
-          name: 'Phantom', char: 'P', color: '#66a', xp: 12,
-        })
-        msg('Duch ryczy z gniewu i atakuje!', '#f44')
+    showNarrative({
+      title: 'Duch Rycerza',
+      lines: [
+        'Widmowa postać w zardzewiałej zbroi',
+        'unosi się nad podłogą zbrojowni.',
+        '',
+        'Jego oczy błyszczą honorem dawnych czasów.',
+        '«Pomóż mi odejść w pokoju...»',
+      ]
+    }, function() {
+      msg('[Y] Pomóż odejść (+ally, +DEF)  [N] Zaatakuj', '#fd4')
+      pendingChoice = {
+        onYes() {
+          narrative.variables.allies_freed++
+          narrative.setVar('allies_freed', narrative.variables.allies_freed, 'Pomógł duchowi rycerza odejść w pokoju')
+          narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 1),
+            'Duch rycerza obdarzył mocą')
+          narrative.transition('ghost-knight', 'Uwolnił ducha rycerza')
+          player.shieldTurns = Math.max(player.shieldTurns, 8)
+          player.shieldDef = 2
+          msg('Duch uśmiecha się i znika. Czujesz jego ochronę. (+2 DEF)', '#8af')
+        },
+        onNo() {
+          narrative.transition('ghost-knight', 'Zaatakował ducha rycerza')
+          enemies.push({
+            x: player.x + (player.x < COLS / 2 ? 2 : -2),
+            y: player.y,
+            hp: 20, maxHp: 20, atk: 5, def: 2,
+            name: 'Phantom', char: 'P', color: '#66a', xp: 12,
+          })
+          msg('Duch ryczy z gniewu i atakuje!', '#f44')
+        }
       }
-    }
+      render()
+    })
     render()
+
   } else if (item.encounter === 'magic-mirror') {
-    msg('Lustro na ścianie ukazuje... ciebie.', '#fa4')
-    msg('Ale potężniejszego. Mocniejszego.', '#da4')
-    msg('[Y] Wejrzyj głębiej (+3 Arkana, -5 HP)  [N] Rozbij (+20 złota)', '#fd4')
-    pendingChoice = {
-      onYes() {
-        narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 3),
-          'Wejrzał w Magiczne Lustro — moc za cenę bólu')
-        narrative.transition('magic-mirror', 'Wejrzał w lustro')
-        player.hp -= 5
-        addEffect(player.x, player.y, '#fa4')
-        msg('Moc przepływa przez ciebie, ale ciało słabnie. (-5 HP, +3 Arkana)', '#fa4')
-      },
-      onNo() {
-        narrative.transition('magic-mirror', 'Rozbił lustro')
-        player.gold += 20
-        stats.gold += 20
-        msg('Lustro pęka! Odłamki skrywały złoto. (+20 złota)', C.gold)
+    showNarrative({
+      title: 'Magiczne Lustro',
+      lines: [
+        'Lustro w złoconej ramie wisi na ścianie.',
+        'Ukazuje twoje odbicie — ale potężniejsze.',
+        '',
+        'Obraz w lustrze kiwa do ciebie,',
+        'zapraszając, byś sięgnął po więcej mocy...',
+      ]
+    }, function() {
+      msg('[Y] Wejrzyj głębiej (+3 Arkana, -5 HP)  [N] Rozbij (+złoto)', '#fd4')
+      pendingChoice = {
+        onYes() {
+          narrative.setVar('arcane_power', Math.min(10, narrative.variables.arcane_power + 3),
+            'Wejrzał w Magiczne Lustro — moc za cenę bólu')
+          narrative.transition('magic-mirror', 'Wejrzał w lustro')
+          player.hp -= 5
+          addEffect(player.x, player.y, '#fa4')
+          msg('Moc przepływa przez ciebie, ale ciało słabnie. (-5 HP, +3 Arkana)', '#fa4')
+        },
+        onNo() {
+          narrative.transition('magic-mirror', 'Rozbił lustro')
+          player.gold += 20
+          stats.gold += 20
+          msg('Lustro pęka! Odłamki skrywały złoto. (+20 złota)', C.gold)
+        }
       }
-    }
+      render()
+    })
     render()
+
   } else if (item.encounter === 'archmage-dialog') {
-    if (narrative.variables.arcane_power >= 7) {
-      msg('Arcymag odwraca się. «Kolejny śmiałek...»', '#fd4')
-      msg('Ale czuje twoją moc i waha się.', '#da4')
-      msg('[Y] "Poddaj się. Moja moc przewyższa twoją."  [N] "Do walki!"', '#fd4')
-      pendingChoice = {
-        onYes() {
-          narrative.setVar('boss_defeated', true, 'Arcymag poddał się — dyplomatyczne zwycięstwo')
-          narrative.transition('peaceful-victory', 'Arcymag poddał się potędze arkany')
-          gameActive = false
-          enemies = enemies.filter(e => e.name !== 'The Archmage')
-          msg('Arcymag klęka. «Twoja moc... jest większa.»', '#fd4')
-          showNarrative(FLOOR_NARRATIVES['peaceful-victory'])
-          render()
-          setTimeout(gameOver, 3000)
-        },
-        onNo() {
-          narrative.transition('archmage-dialog', 'Wybrał walkę z Arcymagiem')
-          player.atkBuff = 2
-          player.atkBuffTurns = 10
-          msg('«Więc walczmy!» Gniew dodaje ci siły. (+2 ATK)', '#fa4')
+    const powerful = narrative.variables.arcane_power >= 7
+    showNarrative({
+      title: 'Konfrontacja',
+      lines: powerful ? [
+        'Arcymag odwraca się powoli.',
+        '«Kolejny śmiałek przybył po swoją zgubę.»',
+        '',
+        'Ale czuje twoją moc i waha się.',
+        '«Ty... ty jesteś inny. Czuję arkanę.»',
+      ] : [
+        'Arcymag odwraca się powoli.',
+        '«Kolejny śmiałek przybył po swoją zgubę.»',
+        '',
+        'Mroczna energia wiruje wokół niego.',
+        '«Twoja moc jest niczym wobec mojej.»',
+      ]
+    }, function() {
+      if (powerful) {
+        msg('[Y] "Poddaj się. Moja moc przewyższa twoją."  [N] Walcz!', '#fd4')
+        pendingChoice = {
+          onYes() {
+            narrative.setVar('boss_defeated', true, 'Arcymag poddał się — dyplomatyczne zwycięstwo')
+            narrative.transition('peaceful-victory', 'Arcymag poddał się potędze arkany')
+            gameActive = false
+            enemies = enemies.filter(e => e.name !== 'The Archmage')
+            msg('Arcymag klęka. «Twoja moc... jest większa.»', '#fd4')
+            showNarrative(FLOOR_NARRATIVES['peaceful-victory'])
+            render()
+            setTimeout(gameOver, 3000)
+          },
+          onNo() {
+            narrative.transition('archmage-dialog', 'Wybrał walkę z Arcymagiem')
+            player.atkBuff = 2
+            player.atkBuffTurns = 10
+            msg('«Więc walczmy!» Gniew dodaje ci siły. (+2 ATK)', '#fa4')
+          }
+        }
+      } else {
+        msg('[Y] "Do walki!" (+2 ATK)  [N] Cofnij się', '#fd4')
+        pendingChoice = {
+          onYes() {
+            narrative.transition('archmage-dialog', 'Rzucił wyzwanie Arcymagowi')
+            player.atkBuff = 2
+            player.atkBuffTurns = 10
+            msg('Odwaga daje ci siłę! (+2 ATK na 10 tur)', '#fa4')
+          },
+          onNo() {
+            narrative.transition('archmage-dialog', 'Cofnął się przed Arcymagiem')
+            msg('Cofasz się. Arcymag śmieje się cicho...', '#888')
+          }
         }
       }
-    } else {
-      msg('Arcymag odwraca się. «Kolejny śmiałek...»', '#fd4')
-      msg('Jego moc przytłacza cię.', '#f44')
-      msg('[Y] "Do walki!" (+2 ATK tymczasowo)  [N] Cofnij się', '#fd4')
-      pendingChoice = {
-        onYes() {
-          narrative.transition('archmage-dialog', 'Rzucił wyzwanie Arcymagowi')
-          player.atkBuff = 2
-          player.atkBuffTurns = 10
-          msg('Odwaga daje ci siłę! (+2 ATK na 10 tur)', '#fa4')
-        },
-        onNo() {
-          narrative.transition('archmage-dialog', 'Cofnął się przed Arcymagiem')
-          msg('Cofasz się. Arcymag śmieje się cicho...', '#888')
-        }
-      }
-    }
+      render()
+    })
     render()
   }
 }
@@ -885,7 +943,7 @@ function playerAction(dx, dy) {
   } else {
     player.x = nx; player.y = ny
     pickupItem(nx, ny)
-    if (pendingChoice) { computeFOV(); render(); return }
+    if (pendingChoice || narrativeOverlay) { computeFOV(); render(); return }
     if (map[ny][nx] === STAIRS) {
       msg('You ascend the stairs...', '#4fa')
       generateFloor()

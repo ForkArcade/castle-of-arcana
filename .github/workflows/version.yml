@@ -1,0 +1,62 @@
+name: Create Version
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create version snapshot
+        run: |
+          # Read current version
+          CURRENT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('.forkarcade.json','utf-8')).currentVersion || 0)")
+          NEXT=$((CURRENT + 1))
+
+          echo "Creating version v${NEXT}..."
+
+          # Create version directory
+          mkdir -p versions/v${NEXT}
+
+          # Copy playable files
+          for f in index.html game.js style.css sprites.js; do
+            [ -f "$f" ] && cp "$f" "versions/v${NEXT}/"
+          done
+
+          # Extract issue number from PR title (e.g. "Implement #7: ...")
+          ISSUE_NUM=$(echo "${{ github.event.pull_request.title }}" | grep -oP '#\K\d+' | head -1 || true)
+          if [ -z "$ISSUE_NUM" ]; then
+            ISSUE_NUM="null"
+          fi
+
+          # Update .forkarcade.json
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('.forkarcade.json','utf-8'));
+            cfg.currentVersion = ${NEXT};
+            if (!cfg.versions) cfg.versions = [];
+            cfg.versions.push({
+              version: ${NEXT},
+              date: new Date().toISOString().slice(0,10),
+              issue: ${ISSUE_NUM},
+              description: process.env.PR_TITLE
+            });
+            fs.writeFileSync('.forkarcade.json', JSON.stringify(cfg, null, 2) + '\n');
+          "
+
+          git config user.name "ForkArcade Bot"
+          git config user.email "bot@forkarcade.github.io"
+          git add versions/v${NEXT}/ .forkarcade.json
+          git commit -m "Version v${NEXT} — snapshot from PR #${{ github.event.pull_request.number }}"
+          git push
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}

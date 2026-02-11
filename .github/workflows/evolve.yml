@@ -1,0 +1,49 @@
+name: Evolve Game
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  evolve:
+    if: github.event.label.name == 'evolve'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Implement issue with Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Read CLAUDE.md for full game context and architecture.
+            Read .forkarcade.json for game metadata.
+
+            Implement the following GitHub issue:
+            Title: ${{ github.event.issue.title }}
+            Body: ${{ github.event.issue.body }}
+
+            Rules:
+            - Modify game.js, style.css, sprites.js, index.html as needed
+            - Do NOT modify .forkarcade.json, .mcp.json, or workflow files in .github/
+            - Keep the existing game structure intact
+            - Ensure submitScore and onReady are still called
+            - Update CLAUDE.md if you add new mechanics or change architecture
+            - Use validate_game tool to verify before finishing
+          allowed_tools: |
+            Bash
+            Read
+            Write
+            Edit
+            Glob
+            Grep
+            mcp__forkarcade__validate_game
+            mcp__forkarcade__get_game_prompt
+            mcp__forkarcade__get_asset_guide
+            mcp__forkarcade__create_sprite
+            mcp__forkarcade__validate_assets
