@@ -17,6 +17,7 @@ const MAX_FLOOR = 5
 const WALL = 0, FLOOR = 1, STAIRS = 2
 const PANEL_X = 800
 const PANEL_W = 260
+const GAME_VERSION = '0.6'
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
 
@@ -1419,6 +1420,14 @@ function render() {
     ctx.font = '11px monospace'
     ctx.textAlign = 'center'
     ctx.fillText('[ Naciśnij dowolny klawisz... ]', 400, 450)
+
+    // Version (non-intrusive, only on intro overlay)
+    if (narrativeOverlay.title === FLOOR_NARRATIVES.intro.title) {
+      ctx.fillStyle = '#333'
+      ctx.font = '10px monospace'
+      ctx.textAlign = 'right'
+      ctx.fillText('v' + GAME_VERSION, 670, 468)
+    }
   }
 }
 

@@ -68,12 +68,21 @@ narrative.setVar(name, value, reason)   // zmień zmienną, wyślij event
 
 Przy dodawaniu nowych mechanik — rozbudowuj graf o nowe nodes/edges i zmienne.
 
+## Wersjonowanie
+
+Gra ewoluuje przez GitHub issues. Gdy issue dostanie label `evolve`, GitHub Actions odpala Claude Code, który implementuje feature i otwiera PR. Po merge, workflow tworzy snapshot w `/versions/v{N}/`.
+
+- Nie modyfikuj ręcznie plików w katalogu `/versions/`
+- Nie modyfikuj workflow files w `.github/`
+- Metadata wersji w `.forkarcade.json` (pole `versions`)
+
 ## Publikowanie
 
 Masz dostęp do narzędzi MCP (skonfigurowane w `.mcp.json`):
 
 - `validate_game` — sprawdź czy SDK podpięty, submitScore wywołany, index.html OK
-- `publish_game` — push do GitHub + włącz GitHub Pages + topic `forkarcade-game`
+- `publish_game` — push do GitHub + włącz GitHub Pages + tworzy version snapshot
+- `get_versions` — pokaż historię wersji
 
 Przed publikacją zawsze wywołaj `validate_game`. Ścieżka do gry to bieżący katalog.
 

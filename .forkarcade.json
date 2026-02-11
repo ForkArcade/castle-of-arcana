@@ -1,5 +1,7 @@
 {
   "template": "roguelike",
   "slug": "castle-of-arcana",
-  "title": "Castle of Arcana"
+  "title": "Castle of Arcana",
+  "currentVersion": 0,
+  "versions": []
 }
