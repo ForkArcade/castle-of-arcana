@@ -1,0 +1,394 @@
+{
+  "width": 72,
+  "height": 32,
+  "background": "#000",
+  "scale": 4,
+  "layers": [
+    {
+      "type": "gradient",
+      "from": "#050518",
+      "to": "#10102a",
+      "direction": "vertical",
+      "dither": true
+    },
+    {
+      "type": "scatter",
+      "color": "#ffffff",
+      "colors": [
+        "#ffffff",
+        "#bbbbff",
+        "#ffffbb"
+      ],
+      "density": 0.03,
+      "y": 0,
+      "h": 20,
+      "seed": 42
+    },
+    {
+      "type": "circle",
+      "cx": 61,
+      "cy": 6,
+      "r": 5,
+      "color": "#161430",
+      "filled": true
+    },
+    {
+      "type": "circle",
+      "cx": 61,
+      "cy": 6,
+      "r": 2,
+      "color": "#ffe8b0",
+      "filled": true
+    },
+    {
+      "type": "rect",
+      "x": 3,
+      "y": 22,
+      "w": 18,
+      "h": 10,
+      "color": "#0b0b20"
+    },
+    {
+      "type": "rect",
+      "x": 6,
+      "y": 21,
+      "w": 12,
+      "h": 1,
+      "color": "#0b0b20"
+    },
+    {
+      "type": "rect",
+      "x": 25,
+      "y": 21,
+      "w": 22,
+      "h": 11,
+      "color": "#0b0b20"
+    },
+    {
+      "type": "rect",
+      "x": 28,
+      "y": 20,
+      "w": 16,
+      "h": 1,
+      "color": "#0b0b20"
+    },
+    {
+      "type": "rect",
+      "x": 52,
+      "y": 22,
+      "w": 18,
+      "h": 10,
+      "color": "#0b0b20"
+    },
+    {
+      "type": "rect",
+      "x": 55,
+      "y": 21,
+      "w": 12,
+      "h": 1,
+      "color": "#0b0b20"
+    },
+    {
+      "type": "rect",
+      "x": 0,
+      "y": 25,
+      "w": 72,
+      "h": 7,
+      "color": "#11110c"
+    },
+    {
+      "type": "dither",
+      "color1": "#11110c",
+      "color2": "#161612",
+      "pattern": "checker",
+      "x": 0,
+      "y": 25,
+      "w": 72,
+      "h": 1
+    },
+    {
+      "type": "rect",
+      "x": 33,
+      "y": 25,
+      "w": 6,
+      "h": 5,
+      "color": "#1a1a14"
+    },
+    {
+      "type": "rect",
+      "x": 17,
+      "y": 10,
+      "w": 5,
+      "h": 15,
+      "color": "#2a2a44"
+    },
+    {
+      "type": "rect",
+      "x": 50,
+      "y": 10,
+      "w": 5,
+      "h": 15,
+      "color": "#2a2a44"
+    },
+    {
+      "type": "rect",
+      "x": 29,
+      "y": 14,
+      "w": 14,
+      "h": 11,
+      "color": "#303050"
+    },
+    {
+      "type": "rect",
+      "x": 22,
+      "y": 18,
+      "w": 7,
+      "h": 7,
+      "color": "#26263e"
+    },
+    {
+      "type": "rect",
+      "x": 43,
+      "y": 18,
+      "w": 7,
+      "h": 7,
+      "color": "#26263e"
+    },
+    {
+      "type": "dither",
+      "color1": "#2a2a44",
+      "color2": "#302e4c",
+      "pattern": "checker",
+      "x": 17,
+      "y": 12,
+      "w": 5,
+      "h": 13
+    },
+    {
+      "type": "dither",
+      "color1": "#2a2a44",
+      "color2": "#302e4c",
+      "pattern": "checker",
+      "x": 50,
+      "y": 12,
+      "w": 5,
+      "h": 13
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "B": "#38385a"
+      },
+      "pixels": [
+        "B.B.B",
+        "BBBBB"
+      ],
+      "x": 17,
+      "y": 8
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "B": "#38385a"
+      },
+      "pixels": [
+        "B.B.B",
+        "BBBBB"
+      ],
+      "x": 50,
+      "y": 8
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "B": "#3c3c5e"
+      },
+      "pixels": [
+        "B.BB.BB.BB.BB.B",
+        "BBBBBBBBBBBBBBB"
+      ],
+      "x": 29,
+      "y": 12
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "B": "#323252"
+      },
+      "pixels": [
+        "B.B.B.B",
+        "BBBBBBB"
+      ],
+      "x": 22,
+      "y": 16
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "B": "#323252"
+      },
+      "pixels": [
+        "B.B.B.B",
+        "BBBBBBB"
+      ],
+      "x": 43,
+      "y": 16
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "F": "#cc2244",
+        "P": "#444468"
+      },
+      "pixels": [
+        "F.",
+        "FF",
+        "P.",
+        "P."
+      ],
+      "x": 18,
+      "y": 4
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "F": "#2244cc",
+        "P": "#444468"
+      },
+      "pixels": [
+        ".F",
+        "FF",
+        ".P",
+        ".P"
+      ],
+      "x": 52,
+      "y": 4
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "G": "#dd8800",
+        "Y": "#ffcc33"
+      },
+      "pixels": [
+        "GY",
+        "GG"
+      ],
+      "x": 18,
+      "y": 14
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "G": "#dd8800",
+        "Y": "#ffcc33"
+      },
+      "pixels": [
+        "GY",
+        "GG"
+      ],
+      "x": 18,
+      "y": 20
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "G": "#dd8800",
+        "Y": "#ffcc33"
+      },
+      "pixels": [
+        "YG",
+        "GG"
+      ],
+      "x": 51,
+      "y": 14
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "G": "#dd8800",
+        "Y": "#ffcc33"
+      },
+      "pixels": [
+        "YG",
+        "GG"
+      ],
+      "x": 51,
+      "y": 20
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "C": "#cc6600",
+        "Y": "#ffaa22",
+        "B": "#ffdd55"
+      },
+      "pixels": [
+        ".YBY.",
+        "YBYBY",
+        ".YBY.",
+        "..Y.."
+      ],
+      "x": 34,
+      "y": 15
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "G": "#dd8800",
+        "Y": "#ffcc33"
+      },
+      "pixels": [
+        "GY..GY..GY",
+        "GG..GG..GG"
+      ],
+      "x": 31,
+      "y": 20
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "D": "#181510",
+        "A": "#221c14",
+        "H": "#775522"
+      },
+      "pixels": [
+        ".ADA.",
+        "ADHDA",
+        "ADHDA",
+        "ADDDA"
+      ],
+      "x": 34,
+      "y": 21
+    },
+    {
+      "type": "pixels",
+      "palette": {
+        "A": "#7744bb",
+        "B": "#9966dd"
+      },
+      "pixels": [
+        ".B..A..B.",
+        "A.......A",
+        "..B...B.."
+      ],
+      "x": 31,
+      "y": 9
+    },
+    {
+      "type": "scatter",
+      "color": "#8855cc",
+      "colors": [
+        "#8855cc",
+        "#6644aa",
+        "#bb88ff"
+      ],
+      "density": 0.008,
+      "x": 12,
+      "y": 6,
+      "w": 48,
+      "h": 20,
+      "seed": 7
+    }
+  ]
+}
