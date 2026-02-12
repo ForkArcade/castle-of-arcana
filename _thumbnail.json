@@ -1,55 +1,52 @@
 {
   "path": "/home/dadmor/code/fork-arcade/games/castle-of-arcana",
-  "layers": [
-    {
-      "type": "gradient",
-      "from": "#0a0520",
-      "to": "#1a0a30"
+  "base": {
+    "palette": {
+      "s": "#0a0520",
+      "g": "#1a0a30",
+      "w": "#2d1c50",
+      "r": "#4a2a6a",
+      "G": "#1a3a1a"
     },
+    "pixels": [
+      "ssssssssssssssssss",
+      "ssssssrrrrrsssssss",
+      "sssswwwwwwwwwsssss",
+      "sssswwwwwwwwwsssss",
+      "sssswwwwwwwwwsssss",
+      "sssswwwwwwwwwsssss",
+      "GGGGGGGGGGGGGGGGGG",
+      "GGGGGGGGGGGGGGGGGG"
+    ]
+  },
+  "layers": [
     {
       "type": "scatter",
       "color": "#ffffff",
-      "count": 40,
-      "seed": 7
-    },
-    {
-      "type": "rect",
-      "x": 15,
-      "y": 10,
-      "w": 40,
-      "h": 22,
-      "color": "#2d1c50"
-    },
-    {
-      "type": "triangle",
-      "points": [
-        [
-          15,
-          10
-        ],
-        [
-          35,
-          2
-        ],
-        [
-          55,
-          10
-        ]
-      ],
-      "color": "#4a2a6a"
+      "count": 30,
+      "seed": 7,
+      "y": 0,
+      "h": 12
     },
     {
       "type": "pixels",
       "x": 25,
-      "y": 15,
+      "y": 13,
       "palette": {
         "w": "#f5a623"
       },
       "rows": [
         "w.w.w",
         ".....",
-        ".w.w."
+        "w.w.w"
       ]
+    },
+    {
+      "type": "circle",
+      "cx": 62,
+      "cy": 4,
+      "r": 2,
+      "color": "#ffe8a0"
     }
   ]
 }
