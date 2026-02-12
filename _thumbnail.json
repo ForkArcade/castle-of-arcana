@@ -8,17 +8,17 @@
       "type": "scene",
       "scene": "castle",
       "palette": {
-        "sky_top": "#0a0520",
-        "sky_bottom": "#1e1638",
-        "ground": "#0d0b1a",
-        "wall": "#2d1c50",
-        "wall_light": "#4a3a7a",
-        "roof": "#362a5c",
-        "window": "#f5a623",
-        "accent": "#8b5cf6",
-        "star": "#eeddff"
+        "sky_top": "#050014",
+        "sky_bottom": "#120a30",
+        "ground": "#0a0618",
+        "wall": "#3b2870",
+        "wall_light": "#5a4099",
+        "roof": "#221650",
+        "window": "#ffcc33",
+        "accent": "#aa66ff",
+        "star": "#ffffff"
       },
-      "seed": 77
+      "seed": 12
     }
   ]
 }
