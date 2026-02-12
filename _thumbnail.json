@@ -11,34 +11,37 @@
         {
           "pixels": {
             "palette": {
-              "S": "#030112",
-              "s": "#08041e",
-              "k": "#10082e",
-              "n": "#1a1045",
-              "W": "#0e0a28",
-              "w": "#1c1448",
-              "m": "#2c2062",
-              "t": "#3e2e7a",
-              "G": "#061006",
-              "g": "#0c1c0c"
+              "V": "#020010",
+              "S": "#050118",
+              "s": "#0a0428",
+              "k": "#120838",
+              "n": "#181050",
+              "W": "#201860",
+              "w": "#2c2078",
+              "m": "#3c3090",
+              "t": "#5040a8",
+              "h": "#4838a0",
+              "G": "#081208",
+              "g": "#102010",
+              "l": "#183018"
             },
             "rows": [
-              "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsS",
-              "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSsSsSs",
-              "SSSSSSsSSsSSSSSSSSSSSSSSSSSsSsSsSkS.",
-              "SssSSsSskSsSSSSSSSSSSSSSsSskSskskss.",
-              "sskskskksksksssssssskskskkkskkkkssk.",
-              "skkkkknknkkkkkkkkkkkknknknknknkkkks.",
-              "kknnttnnnttnnkkkkknnnttnnnttnnnnkk..",
-              "kknnwwwnwwwnnkkkkknnnwwwnwwwnnnkk...",
-              "kknWwwwnwwwwnnnnnnnnwwwwnwwwnnkk....",
-              "kknWwwwwwwwwwwwwwwwwwwwwwwwwnnnk....",
-              "knWWwwwmwwWWwwwmwwWWwwwmwwWWnnk.....",
-              "knWWWwwwWWWWwwwwWWWWwwwWWWWWnnk.....",
-              "nWWWWWWWWWWWWWWWWWWWWWWWWWWWWnn.....",
-              "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGgggg",
-              "gGGGgGgGGgGGGGGGGGGGGGGGgGGgGGggggg.",
-              "gggggggGgggggggggggggggggggGgggggggg"
+              "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVs",
+              "VVVSVVVSVVVVVVVVVVVVVVVVVVSSVSVssVss",
+              "VSSVSSSVSSSSSSVSSSSSSSSSSSSSSSSsksSs",
+              "SSsSsSSsSsSSSSSSSSSSSSSSsSsksSskksss",
+              "SsssksSskksSssssssssskskskkskkkskkss",
+              "skkkkkkkkkkkssssssskkkkkkkkkkkkkkkss",
+              "skknnttnnnttnnkkkkknnttnnnttnnkkkskk",
+              "skknwwwnwwwwnnkkkknwwwwnwwwwnnkkskkk",
+              "skknwwwmwwwwwnnnnnwwwwmwwwwwnkkskkkk",
+              "skkWwwwwwwwwwwwwwwwwwwwwwwwwWkkskkkk",
+              "skkWwwhmhwWWwwhmhwWWwwhmhwWWkkskkkkk",
+              "skkWWwwwwWWWWwwwwwWWWWwwwWWWkkskkkkk",
+              "skWWWWWWWWWWWWWWWWWWWWWWWWWWkkskkkkk",
+              "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGlGGGG",
+              "gGGgGGGgGGGGGGGGGGGGGGGGGGGgGGGgGGgg",
+              "ggggglgggggggggggggggggggglggggggggg"
             ]
           }
         }
@@ -54,35 +57,35 @@
         {
           "scatter": {
             "color": "#ffffff",
-            "count": 25,
+            "count": 18,
             "seed": 42,
             "y": 0,
-            "h": 10
+            "h": 9
           }
         },
         {
           "scatter": {
-            "color": "#8888cc",
-            "count": 15,
-            "seed": 99,
+            "color": "#6666aa",
+            "count": 12,
+            "seed": 77,
             "y": 0,
-            "h": 12
+            "h": 11
           }
         },
         {
           "circle": {
-            "cx": 61,
+            "cx": 62,
+            "cy": 5,
+            "r": 4,
+            "color": "#b0a070"
+          }
+        },
+        {
+          "circle": {
+            "cx": 62,
             "cy": 5,
             "r": 3,
-            "color": "#c0b888"
-          }
-        },
-        {
-          "circle": {
-            "cx": 61,
-            "cy": 5,
-            "r": 2,
-            "color": "#e8d8a8"
+            "color": "#d8c898"
           }
         },
         {
@@ -96,33 +99,18 @@
         {
           "pixels": {
             "palette": {
-              "Y": "#e8a020",
-              "y": "#c07818",
-              "o": "#a06010"
+              "Y": "#ffc030",
+              "y": "#d09820",
+              "o": "#a07010"
             },
-            "x": 16,
-            "y": 15,
+            "x": 15,
+            "y": 14,
             "rows": [
-              "Y..Y.........Y..Y.",
-              "..................",
-              "Y..Y....Y....Y..Y.",
-              "........y........."
-            ]
-          }
-        },
-        {
-          "pixels": {
-            "palette": {
-              "d": "#805020",
-              "D": "#604018"
-            },
-            "x": 32,
-            "y": 22,
-            "rows": [
-              ".dDd.",
-              ".dDd.",
-              ".dDd.",
-              "ddddd"
+              "Yy...Yy.........Yy...Yy",
+              "........................",
+              "Yy.oyYy.........Yy.oyYy",
+              "...oy...........o..oy..",
+              "...oy..oo.oo....o..oy.."
             ]
           }
         }
@@ -134,25 +122,48 @@
         8
       ],
       "aa": "lanczos",
-      "opacity": 0.18,
+      "opacity": 0.2,
       "ops": [
         {
           "pixels": {
             "palette": {
-              "g": "#ffe8a0",
-              "G": "#ffd070"
+              "g": "#ffe080",
+              "G": "#ffd060"
             },
-            "x": 13,
+            "x": 12,
             "y": 0,
             "rows": [
-              "..ggg",
-              ".gGGg",
-              ".gGGg",
-              "..ggg",
-              ".....",
-              ".....",
-              ".....",
-              "....."
+              "..gGg.",
+              ".gGGGg",
+              ".gGGGg",
+              "..gGg.",
+              "......",
+              "......",
+              "......",
+              "......"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "res": [
+        9,
+        4
+      ],
+      "aa": "lanczos",
+      "opacity": 0.12,
+      "ops": [
+        {
+          "pixels": {
+            "palette": {
+              "f": "#605088"
+            },
+            "rows": [
+              ".........",
+              ".........",
+              "fffffffff",
+              "fffffffff"
             ]
           }
         }
@@ -164,19 +175,18 @@
         4
       ],
       "aa": "lanczos",
-      "opacity": 0.1,
+      "opacity": 0.08,
       "ops": [
         {
           "pixels": {
             "palette": {
-              "f": "#6050a0",
-              "F": "#504080"
+              "h": "#302860"
             },
             "rows": [
               "............",
               "............",
-              "fFfFfFfFfFfF",
-              "FFFFFFFFFFFF"
+              "hhhhhhhhhhhh",
+              "............"
             ]
           }
         }
