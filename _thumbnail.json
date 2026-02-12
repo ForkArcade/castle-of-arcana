@@ -1,52 +1,153 @@
 {
   "path": "/home/dadmor/code/fork-arcade/games/castle-of-arcana",
-  "base": {
-    "palette": {
-      "s": "#0a0520",
-      "g": "#1a0a30",
-      "w": "#2d1c50",
-      "r": "#4a2a6a",
-      "G": "#1a3a1a"
-    },
-    "pixels": [
-      "ssssssssssssssssss",
-      "ssssssrrrrrsssssss",
-      "sssswwwwwwwwwsssss",
-      "sssswwwwwwwwwsssss",
-      "sssswwwwwwwwwsssss",
-      "sssswwwwwwwwwsssss",
-      "GGGGGGGGGGGGGGGGGG",
-      "GGGGGGGGGGGGGGGGGG"
-    ]
-  },
   "layers": [
     {
-      "type": "scatter",
-      "color": "#ffffff",
-      "count": 30,
-      "seed": 7,
-      "y": 0,
-      "h": 12
-    },
-    {
-      "type": "pixels",
-      "x": 25,
-      "y": 13,
-      "palette": {
-        "w": "#f5a623"
-      },
-      "rows": [
-        "w.w.w",
-        ".....",
-        "w.w.w"
+      "res": [
+        18,
+        8
+      ],
+      "aa": "bilinear",
+      "ops": [
+        {
+          "pixels": {
+            "palette": {
+              "s": "#060318",
+              "g": "#0d0828",
+              "n": "#140e38",
+              "w": "#1c1248",
+              "m": "#2d1c5a",
+              "r": "#4a2a70",
+              "t": "#5c3880",
+              "G": "#142814",
+              "L": "#1e3a1e",
+              "D": "#0a1a0a"
+            },
+            "rows": [
+              "ssssssssssssssssss",
+              "ssggggrrtrrggggss",
+              "ssgwwmmtmmmwwggss",
+              "ssgnmmmmmmmmnggss",
+              "ssgnmmmmmmmmnggss",
+              "ssgnmmmmmmmmnggss",
+              "DDLLGGGGGGGGLLDDDD",
+              "DDGGLLGGGGLLGGDDDD"
+            ]
+          }
+        }
       ]
     },
     {
-      "type": "circle",
-      "cx": 62,
-      "cy": 4,
-      "r": 2,
-      "color": "#ffe8a0"
+      "res": [
+        36,
+        16
+      ],
+      "aa": "bicubic",
+      "ops": [
+        {
+          "pixels": {
+            "palette": {
+              "w": "#f5a623",
+              "d": "#c88510",
+              "b": "#3a2060",
+              "g": "#808080"
+            },
+            "x": 10,
+            "y": 4,
+            "rows": [
+              "w..w....w..w.....",
+              ".................",
+              "w..w..g.w..w.....",
+              "......g..........",
+              "..bb..g..bb......",
+              "..bb.ggg.bb......"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "res": [
+        72,
+        32
+      ],
+      "aa": "nearest",
+      "ops": [
+        {
+          "scatter": {
+            "color": "#ffffff",
+            "count": 50,
+            "seed": 7,
+            "y": 0,
+            "h": 14
+          }
+        },
+        {
+          "circle": {
+            "cx": 62,
+            "cy": 5,
+            "r": 4,
+            "color": "#ffe8a0"
+          }
+        },
+        {
+          "circle": {
+            "cx": 63,
+            "cy": 4,
+            "r": 2,
+            "color": "#fff5d0"
+          }
+        }
+      ]
+    },
+    {
+      "res": [
+        12,
+        6
+      ],
+      "aa": "lanczos",
+      "opacity": 0.25,
+      "ops": [
+        {
+          "pixels": {
+            "palette": {
+              "g": "#ffe8a0"
+            },
+            "x": 8,
+            "y": 0,
+            "rows": [
+              ".....",
+              "..ggg",
+              ".gggg",
+              "..gg.",
+              ".....",
+              "....."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "res": [
+        9,
+        4
+      ],
+      "aa": "lanczos",
+      "opacity": 0.15,
+      "ops": [
+        {
+          "pixels": {
+            "palette": {
+              "f": "#8060b0"
+            },
+            "rows": [
+              ".........",
+              ".........",
+              "fffffffff",
+              "fffffffff"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
